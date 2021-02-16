@@ -1,0 +1,125 @@
+\documentclass{IEEEtran}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{csquotes}
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}
+\usepackage[backend=biber]{biblatex}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+\title{Weighting The Best Action Sequences By Estimated Reward In CEM}
+
+\author{%
+  Abhinav Madahar \texttt{am2229@scarletmail.rutgers.edu} \\
+  Rohan Ravella \texttt{rhr52@scarletmail.rutgers.edu}
+}
+
+\bibliography{references}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    When controlling an agent in an environment using reinforcement learning, we can use an environment model to make smarter actions.
+    When training this environment model, we use the cross entropy method (\enquote{CEM}).
+    Every time CEM runs a training iteration, it finds the $K$ (state, action, reward, next state) instances with the best reward.
+    It then updates its beliefs using those $K$ instances \textit{via} a mean.
+    We propose using a weighted mean which places a higher weight on instances with better rewards.
+\end{abstract}
+
+\section{Introduction}
+% what is the task?
+In reinforcement learning, we have a changing environment which is affected by decisions we make, and we want to make an AI that can interact with this environment to accomplish some task.
+For example, we might want to make an AI that can play a video game where the task is to gain a high-score.
+% why do we want to solve it?
+Problems like this are common, and they are becoming more common-place as companies embed computers into more devices, from cars to vacuum cleaners.
+As more objects become \enquote{smart}, more opportunities appear to use AI to interact with the real world.
+However, the real world is complex, so we need powerful AIs which can make decisions based on which ones would deliver the best outcome.
+
+% how have people solved it before?
+In prior work, researchers have used reinforcement learning to train AIs to interact with an environment.
+Recently, model-based planning agents have become more popular.
+In non-model-based reforcement learning, an AI observes the environment and decides which decision to make.
+In model-based reforcement learning, an AI observes the environment, considers the possible decicions, and asks an environment model which decision is best considering the environment.
+By training a model of the environment, the AI can make better-considered decisions, so it can more effectively solve the task.
+To train the model, we can use CEM \textit{as per} \cite{hafner2018planet}.
+
+In our work, we considered six tasks: stabilising an up-right pole, reaching a ball, running on two legs, spinning a top, putting a ball in a cup, and walking on two legs.
+These tasks involve agent-to-environment contact, delayed rewards, and limited information.
+When making a decision, the agent is given a picture of the current environmental state.
+We show that a single model-based planning agent architecture can solve these six disparate tasks more efficiently using a weighted mean in CEM.
+
+The Related Work section (\ref{related-work}) explains how previous researchers have solved tasks like this.
+The Main Contribution section (\ref{main-contribution}) explains in detail how we use a weighted mean in CEM.
+The Evaluation section (\ref{evaluation}) details our evaluation procedure.
+We discuss potential future works and limitations of our technique in the Conclusion (\ref{conclusion}).
+Ending the report is a detailing of what work was done by each of the two group members (\ref{contributions}).
+
+%Rohan
+\section{Related Work}\label{related-work}
+We improved the model proposed by \cite{hafner2018planet}, which created a model-based planning agent.
+The original paper used less data than a model-free agent without reducing performance.
+
+The agent was given the pixels representing the video feed of the environment.
+The agent uses its environment model to decide the best action sequence depending on the task at hand.
+PlaNet starts by predicting the action which gives the best immediately-next state, and then it finds the action sequence which gives the best ending state.
+The agent uses a Markov Decision Process to maximise the reward. 
+
+The researchers found that a model trained to do all six tasks performed similarly to six models trained on a single task each.
+In comparison to a model-free agent, the researchers cite a 19 percent improvement in terms of performance, and a 50 times improvement on data effiency. 
+This supports the researchers' claim of being more data efficient while having comparable performance to model-free agents.
+
+%Abhinav
+\section{Main Contribution}\label{main-contribution}
+In prior work, the cross entropy method found the optimal action sequence by updating a belief's mean and standard devation according to the rules
+\begin{align*}
+    \mu_{t:t+H}    &= \frac{1}{K} \sum_{k \in \mathcal{K}} a^{(k)}_{t:t+H}, \\
+    \sigma_{t:t+H} &= \frac{1}{K-1} \sum_{k \in \mathcal{K}} \left|a^{(k)}_{t:t+H} - \mu_{t:t+H}\right|.
+\end{align*}
+Instead of weighting the best action sequences equally, our algorithm runs a weighted average where the weight is the predicted reward.
+We replace the above two update rules with
+\begin{align*}
+    \mathbf{R}     &= \sum_{k \in \mathcal{K}} R^{(k)} \\
+    \mu_{t:t+H}    &= \frac{1}{\mathbf{R}} \sum_{k \in \mathcal{K}} R^{(k)} a^{(k)}_{t:t+H} \\
+    \sigma_{t:t+H} &= \frac{1}{\mathbf{R}} \sum_{k \in \mathcal{K}} R^{(k)} \left|a^{(k)}_{t:t+H} - \mu_{t:t+H}\right|.
+\end{align*}
+
+
+%Ziad
+\section{Evaluation}\label{evaluation}
+We used TensorFlow \cite{tensorflow2015-whitepaper} to implement the model.
+We then used MuJoCo \cite{conf/iros/TodorovET12} to run it.
+When we ran MuJoCo, it could not connect to OpenGL on our machine, so we could not train the model.
+
+The model will be evaluated on:
+\begin{itemize}
+\item the accuracy on each unique task,
+\item efficiency in terms of resources such as GPU usage,
+\item training time,
+\item and the data efficiency.
+\end{itemize}
+These metrics will then be compared to the results shown in the original paper's implementation of PlaNet, which saw a significant increase of data efficiency and a moderate increase of model accuracy over conventional model-free planning agents.
+Unforunately, our physics engine \cite{conf/iros/TodorovET12} could not connect to OpenGL, so we could not train our model after we implemented it.
+This prevented us from evaluating it using these metrics.
+
+\section{Conclusion}\label{conclusion}
+We saw that, by more closely focusing on actions which give a good reward, we might be able to get better results.
+However, this also makes the AI explore less during training, making it more prone to overfitting.
+It also only works well if we sample many $(S, A, R, S')$ instances during training, which uses more system resources.
+We hope that future work can resolve this limitations.
+
+
+%Everyone
+\section{Contributions}\label{contributions}
+Rohan wrote the report and created UNIX shell scripts to install packages on our training servers. 
+Abhinav made the algorithm and wrote the code to implement it.
+
+\printbibliography
+
+\end{document}

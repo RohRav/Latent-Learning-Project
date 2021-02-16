@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+
+\sloppy
+\usepackage[]{algorithm2e}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage[english]{babel}
+\usepackage[backend=biber]{biblatex}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1.0in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+\usepackage{palatino}
+\usepackage[parfill]{parskip}
+\usepackage[final]{pdfpages}
+\usepackage[small]{titlesec}
+
+\addbibresource{refs.bib}
+
+\begin{document}
+
+\begin{center}
+    \large{CS 444: Project: Weighting The Best Action Sequences By Estimated Reward In CEM}
+\end{center}
+\vspace{5mm}
+
+\textbf{Team members: Ziad Bekhiet (zyb3), Rohan Ravella (rhr52), Abhinav Madahar (am2229)}
+
+% ABHINAV's
+\noindent\textbf{What to solve.}
+An action sequence is a sequence of actions; for example, a chess engine might consider an action sequence (A3 to A4, B3 to B4, E4 to F1).
+We say that an action sequence is \enquote{optimal} if it solves a particular goal better than any other action sequence; in a chess engine, this means that the action sequence is more likely to win the game than any other sequence.
+In reinforcement learning, we say that an action sequence is optimal if it has a higher reward than any other action sequence.
+
+In the original paper \cite{DBLP:journals/corr/abs-1811-04551}, the authors used the cross entropy method (\enquote{CEM}) to find the optimal action sequence.  % TODO: cite original paper and CEM papers
+When they used CEM, they evaluated many randomly-selected action sequences, estimated each sequence's reward, and re-fitted their beliefs by averaging the best few action sequences.
+Notably, the authors used the $K$ best action sequences to re-fit their beliefs, and they weighted the action sequences equally.
+To do so, they updated their belief's mean and standard deviation according to the rules
+\begin{align*}
+    \mu_{t:t+H}    &= \frac{1}{K} \sum_{k \in \mathcal{K}} a^{(k)}_{t:t+H}, \\
+    \sigma_{t:t+H} &= \frac{1}{K-1} \sum_{k \in \mathcal{K}} \left|a^{(k)}_{t:t+H} - \mu_{t:t+H}\right|.
+\end{align*}
+However, weighting the $K$ best action sequences equally loses some information; ideally, the action sequence with the highest reward would have the most weight, and so forth.
+
+
+% ABHINAV's
+\textbf{How to solve.}
+Instead of weighting the best action sequences equally, we run a weighted average where the weight is the predicted reward.
+We replace the above two update rules with
+\begin{align*}
+    \mathbf{R}     &= \sum_{k \in \mathcal{K}} R^{(k)} \\
+    \mu_{t:t+H}    &= \frac{1}{\mathbf{R}} \sum_{k \in \mathcal{K}} a^{(k)}_{t:t+H} R^{(k)}, \\
+    \sigma_{t:t+H} &= \frac{1}{K-1} \sum_{k \in \mathcal{K}} \frac{R^{(k)}}{\mathbf{R}} \left|a^{(k)}_{t:t+H} - \mu_{t:t+H}\right|.
+\end{align*}
+
+
+% ZIAD's
+\textbf{How to evaluate.}
+Using the existing model as a baseline, we will evaluate the novel model's accuracy, training time, and GPU memory usage. 
+The best hyperparameters for the novel model may differ from those of the baseline model, so we will use the best hyperparameters for each individual model.
+We will evaluate the accuracy using using \texttt{tf.keras.metrics.Accuracy}. 
+We will measure training time as the number of iterations needed for the loss to converge and the wall time until this happens. 
+We will measure GPU memory usage using NVIDIA's \texttt{nvidia-smi} command, run every second.
+
+
+\printbibliography
+
+\end{document}
