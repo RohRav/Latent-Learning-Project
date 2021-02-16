@@ -14,7 +14,7 @@ Make sure to use **Python 3.6** because this paper's code uses it.
 
 ## TODO
 
-- [ ] Final paper
+- [x] Final paper
     - [x] **Rohan**    writes Prior Work section; focus on the prior work given the original paper. Make sure to add a references section using BibTeX at the end.
     - [ ] **Ziad**     writes Evaluation section; describe the techniques we will use to evaluate the model, which are the same techniques used in the original paper. Abhinav will fill in the numbers.
     - [x] **Abhinav**  writes Algorithm section
@@ -22,7 +22,7 @@ Make sure to use **Python 3.6** because this paper's code uses it.
     - [x] **Rohan**  writes Conclusion section
     - [x] **Abhinav**  writes Abstract 
 
-- [ ] Reproduce *Learning Latent Dynamics for Planning from Pixels* paper
+- [x] Reproduce *Learning Latent Dynamics for Planning from Pixels* paper
     - [x] **Rohan** (by 2020-11-08) reads [Learn Bash in Y minutes](https://learnxinyminutes.com/docs/bash/)
     - [x] **Rohan** (by 2020-11-09) signs up to use `cray1.cs.rutgers.edu`
     - [x] **Rohan** (by 2020-11-10) writes a bash script that installs Anaconda on `cray1.cs.rutgers.edu` 
